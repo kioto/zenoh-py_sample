@@ -7,16 +7,20 @@ KEY_PUB_1 = 'demo/example/pub1'
 KEY_PUB_2 = 'demo/example/pub2'
 KEY_PUB_ALL = 'demo/example/**'
 
-HOST_1 = '127.0.0.1'            # 送付先IPアドレス1
-HOST_2 = '127.0.0.1'            # 送付先IPアドレス2
+HOSTS = []  # 送り先IPアドレスを文字列のリストで指定
 PORT = 7447
+
 
 if __name__ == '__main__':
     conf = zenoh.Config()
-    conf.insert_json5(zenoh.config.CONNECT_KEY,
-                      json.dumps([f'tcp/{HOST_1}:{PORT}',
-                                  f'tcp/{HOST_2}:{PORT}']))
 
+    # subscriberのホストを追加
+    hosts = []
+    if HOSTS:
+        conf.insert_json5(zenoh.config.CONNECT_KEY, json.dumps(HOSTS))
+        hosts.append('tcp/{HOST_1}:{PORT}')
+
+    # 実行
     zenoh.init_logger()
     session = zenoh.open(conf)
     pub1 = session.declare_publisher(KEY_PUB_1)

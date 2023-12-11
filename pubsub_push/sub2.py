@@ -1,9 +1,13 @@
 import time
+import json
 import zenoh
 from zenoh import Reliability, Sample
 
-CONF = zenoh.Config()
+
+HOST = ''  # publisherと異なるIPアドレスならここで設定する
+PORT = 7447
 KEY = 'demo/example/pub2'
+
 
 StateDone = False
 
@@ -19,8 +23,13 @@ def listener(sample: Sample):
 
 
 if __name__ == '__main__':
+    conf = zenoh.Config()
+    if HOST:
+        conf.insert_json5(zenoh.config.LISTEN_KEY,
+                          json.dumps([f'tcp/{HOST}:{PORT}']))
+
     zenoh.init_logger()
-    session = zenoh.open(CONF)
+    session = zenoh.open(conf)
     print("Declaring Subscriber on '{}'...".format(KEY))
 
     sub = session.declare_subscriber(KEY, listener,
