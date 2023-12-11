@@ -15,10 +15,11 @@ if __name__ == '__main__':
     conf = zenoh.Config()
 
     # subscriberのホストを追加
-    hosts = []
     if HOSTS:
-        conf.insert_json5(zenoh.config.CONNECT_KEY, json.dumps(HOSTS))
-        hosts.append('tcp/{HOST_1}:{PORT}')
+        hosts = []
+        for host in HOSTS:
+            hosts.append(f'tcp/{host}:{PORT}')
+        conf.insert_json5(zenoh.config.CONNECT_KEY, json.dumps(hosts))
 
     # 実行
     zenoh.init_logger()
