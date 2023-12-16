@@ -1,13 +1,22 @@
+"""
+P2P(push) publisher
+
+Usage:
+ $ python pub.py
+
+ demo/**, demo/pub1, demo/pub2を順にpublishする。
+"""
+
 import time
 import json
 import zenoh
 
 
-KEY_PUB_1 = 'demo/example/pub1'
-KEY_PUB_2 = 'demo/example/pub2'
-KEY_PUB_ALL = 'demo/example/**'
+KEY_PUB_1 = 'demo/pub1'
+KEY_PUB_2 = 'demo/pub2'
+KEY_PUB_ALL = 'demo/**'
 
-HOSTS = []  # 送り先IPアドレスを文字列のリストで指定
+HOSTS = []  # 送り先IPアドレスを文字列のリストで指定（未指定でlocalhost）
 PORT = 7447
 
 
