@@ -31,16 +31,7 @@ def listener(sample: zenoh.Sample):
         StateDone = True
 
 
-if __name__ == '__main__':
-    key = DEFAULT_KEY
-    if len(sys.argv) > 1:
-        # 引数があればそれをkeyにする
-        key = sys.argv[1]
-
-    conf = zenoh.Config()
-    if HOST:
-        conf.insert_json5(zenoh.config.LISTEN_KEY,
-                          json.dumps([f'tcp/{HOST}:{PORT}']))
+def main(conf):
     zenoh.init_log_from_env_or('error')
     session = zenoh.open(conf)
     print("Declaring Subscriber on '{}'...".format(key))
@@ -54,3 +45,18 @@ if __name__ == '__main__':
 
     sub.undeclare()
     session.close()
+
+
+if __name__ == '__main__':
+    key = DEFAULT_KEY
+    if len(sys.argv) > 1:
+        # 引数があればそれをkeyにする
+        key = sys.argv[1]
+    conf = zenoh.Config()
+
+    # subscriberのホストを追加
+    if HOST:
+        conf.insert_json5(zenoh.config.LISTEN_KEY,
+                          json.dumps([f'tcp/{HOST}:{PORT}']))
+
+    main(conf)

@@ -1,13 +1,11 @@
 """
-P2P(push) publisher
+P2P publisher (no wait)
 
 Usage:
- $ python pub.py
+ $ python pub_nowait.py
 
- demo/**, demo/pub1, demo/pub2を順にpublishする。
+ 待ち時間なしでdemo/**, demo/pub1, demo/pub2を順にpublishする。
 """
-
-import time
 import json
 import zenoh
 
@@ -20,17 +18,7 @@ HOSTS = []  # 送り先IPアドレスを文字列のリストで指定（未指�
 PORT = 7447
 
 
-if __name__ == '__main__':
-    conf = zenoh.Config()
-
-    # subscriberのホストを追加
-    if HOSTS:
-        hosts = []
-        for host in HOSTS:
-            hosts.append(f'tcp/{host}:{PORT}')
-        conf.insert_json5(zenoh.config.CONNECT_KEY, json.dumps(hosts))
-
-    # 実行
+def main(conf):
     zenoh.init_log_from_env_or('error')
     session = zenoh.open(conf)
     pub1 = session.declare_publisher(KEY_PUB_1)
@@ -55,7 +43,6 @@ if __name__ == '__main__':
             pub_all.put(msg)
 
         print(f">> [Publisher] Sent PUT ('{key}': '{msg}')")
-        time.sleep(1)
 
     print('done')
     pub_all.put('done')
@@ -64,3 +51,16 @@ if __name__ == '__main__':
     pub2.undeclare()
     pub_all.undeclare()
     session.close()
+
+
+if __name__ == '__main__':
+    conf = zenoh.Config()
+
+    # subscriberのホストを追加
+    if HOSTS:
+        hosts = []
+        for host in HOSTS:
+            hosts.append(f'tcp/{host}:{PORT}')
+        conf.insert_json5(zenoh.config.CONNECT_KEY, json.dumps(hosts))
+
+    main(conf)
