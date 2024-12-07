@@ -11,7 +11,6 @@ import sys
 import time
 import json
 import zenoh
-from zenoh import Reliability, Sample
 
 
 HOST = ''  # publisherと異なるIPアドレスならここで設定する
@@ -22,11 +21,11 @@ DEFAULT_KEY = 'demo/pub1'
 StateDone = False
 
 
-def listener(sample: Sample):
+def listener(sample: zenoh.Sample):
     global StateDone
     kind = sample.kind
     key_expr = sample.key_expr
-    payload = sample.payload.decode('utf-8')
+    payload = sample.payload.to_string()
     print(f">> [Subscriber] Received {kind} ('{key_expr}': '{payload}')")
     if payload == 'done':
         StateDone = True
@@ -42,12 +41,11 @@ if __name__ == '__main__':
     if HOST:
         conf.insert_json5(zenoh.config.LISTEN_KEY,
                           json.dumps([f'tcp/{HOST}:{PORT}']))
-    zenoh.init_logger()
+    zenoh.init_log_from_env_or('error')
     session = zenoh.open(conf)
     print("Declaring Subscriber on '{}'...".format(key))
 
-    sub = session.declare_subscriber(key, listener,
-                                     reliability=Reliability.RELIABLE())
+    sub = session.declare_subscriber(key, listener)
 
     while True:
         time.sleep(1)

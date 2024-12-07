@@ -31,7 +31,7 @@ if __name__ == '__main__':
         conf.insert_json5(zenoh.config.CONNECT_KEY, json.dumps(hosts))
 
     # 実行
-    zenoh.init_logger()
+    zenoh.init_log_from_env_or('error')
     session = zenoh.open(conf)
     pub1 = session.declare_publisher(KEY_PUB_1)
     pub2 = session.declare_publisher(KEY_PUB_2)

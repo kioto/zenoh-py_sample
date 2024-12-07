@@ -9,34 +9,13 @@ Usage:
  - 引数を指定（例えばdemo/pub2）すると、そのキーでsubscribe
 """
 import sys
-import time
 import json
-from threading import Thread
 import zenoh
-from zenoh import Reliability
 
 
 HOST = ''  # publisherと異なるIPアドレスならここで設定する
 PORT = 7447
 DEFAULT_KEY = 'demo/pub1'
-
-
-StateDone = False
-
-
-def consumer():
-    global StateDone
-    for sample in sub.receiver:
-        kind = sample.kind
-        key_expr = sample.key_expr
-        payload = sample.payload.decode('utf-8')
-        print(f">> [Subscriber] Received {kind} ('{key_expr}': '{payload}')")
-
-        if payload == 'done':
-            StateDone = True
-            return
-
-        time.sleep(1)
 
 
 if __name__ == '__main__':
@@ -49,20 +28,18 @@ if __name__ == '__main__':
     if HOST:
         conf.insert_json5(zenoh.config.LISTEN_KEY,
                           json.dumps([f'tcp/{HOST}:{PORT}']))
-    zenoh.init_logger()
-    session = zenoh.open(conf)
-    print(f"Declaring Subscriber on '{key}'...")
+    zenoh.init_log_from_env_or('error')
 
-    sub = session.declare_subscriber(key, zenoh.Queue(),
-                                     reliability=Reliability.RELIABLE())
+    with zenoh.open(conf) as session:
+        print(f"Declaring Subscriber on '{key}'...")
 
-    t = Thread(target=consumer)
-    t.start()
+        with session.declare_subscriber(key) as sub:
+            # subがqueueになっているので、順に取り出す
+            for sample in sub:
+                payload = sample.payload.to_string()
+                print(f">> [Subscriber] Received {sample.kind}"
+                      f"('{sample.key_expr}': '{payload}')")
+                if payload == 'done':
+                    break
 
-    while True:
-        time.sleep(1)
-        if StateDone:
-            break
-
-    sub.undeclare()
-    session.close()
+    print('done')
