@@ -7,7 +7,6 @@ Usage:
  待ち時間なしでdemo/**, demo/pub1, demo/pub2を順にpublishする。
 """
 
-import time
 import json
 import zenoh
 
