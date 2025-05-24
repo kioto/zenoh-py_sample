@@ -130,7 +130,3 @@ dmypy.json
 
 # Emacs
 *~
-
-# uv
-pyproject.toml
-uv.lock
